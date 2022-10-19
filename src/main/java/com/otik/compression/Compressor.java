@@ -30,41 +30,78 @@ public class Compressor<T extends Comparable<? super T>> {
     }
 
     public TreeMap<T, StringBuilder> getCodes() {
-        sortProbability();
         defineCiphers(repetition);
         return codes;
     }
 
-    private void sortProbability() {
-        repetition = repetition.entrySet().stream()
+    private Map<T, Integer> sortRepetitionDescending(Map<T, Integer> map) {
+        return map.entrySet().stream()
+                .sorted(Map.Entry.<T, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (k, v) -> {
+                            throw new AssertionError();
+                        },
+                        LinkedHashMap::new));
+
+    }
+
+    private Map<T, Integer> sortRepetitionAscending(Map<T, Integer> map) {
+        return map.entrySet().stream()
                 .sorted(Map.Entry.<T, Integer>comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (k, v) -> {
                             throw new AssertionError();
                         },
                         LinkedHashMap::new));
-    }
 
+    }
 
     private void defineCiphers(@NotNull Map<T, Integer> map) {
         if (map.size() != 1) {
-            double mediumProbability = 0.0;
-            double sumProbabilityOfFirstPart = 0.0; //которая стоит справа, где 1
+            double mediumRepetition = 0.0;
+            double sumRepetitionOfMostPartVariant1 = 0.0; //которая стоит справа, где 1
+            double sumRepetitionOfMostPartVariant2 = 0.0;
             Map<T, Integer> firstPart = new LinkedHashMap<>();
             Map<T, Integer> secondPart = new LinkedHashMap<>();
 
             for (double value : map.values())
-                mediumProbability += (value / 2);
+                mediumRepetition += (value / 2);
 
+            map = sortRepetitionDescending(map);
             for (Map.Entry<T, Integer> entry : map.entrySet())
-                if (sumProbabilityOfFirstPart < mediumProbability) {
-                    firstPart.put(entry.getKey(), entry.getValue());
-                    codes.get(entry.getKey()).append("1");
-                    sumProbabilityOfFirstPart += entry.getValue();
-                } else {
-                    secondPart.put(entry.getKey(), entry.getValue());
-                    codes.get(entry.getKey()).append("0");
-                }
+                if (sumRepetitionOfMostPartVariant1 < mediumRepetition)
+                    sumRepetitionOfMostPartVariant1 += entry.getValue();
+
+            map = sortRepetitionAscending(map);
+            for (Map.Entry<T, Integer> entry : map.entrySet())
+                if (sumRepetitionOfMostPartVariant2 < mediumRepetition)
+                    sumRepetitionOfMostPartVariant2 += entry.getValue();
+
+            if (sumRepetitionOfMostPartVariant1 < sumRepetitionOfMostPartVariant2) {
+                map=sortRepetitionDescending(map);
+                sumRepetitionOfMostPartVariant1=0;
+                for (Map.Entry<T, Integer> entry : map.entrySet())
+                    if (sumRepetitionOfMostPartVariant1 < mediumRepetition) {
+                        firstPart.put(entry.getKey(), entry.getValue());
+                        codes.get(entry.getKey()).append("1");
+                        sumRepetitionOfMostPartVariant1 += entry.getValue();
+                    }else{
+                        secondPart.put(entry.getKey(), entry.getValue());
+                        codes.get(entry.getKey()).append("0");
+                    }
+            }else {
+                map=sortRepetitionAscending(map);
+                sumRepetitionOfMostPartVariant2=0;
+                for (Map.Entry<T, Integer> entry : map.entrySet())
+                    if (sumRepetitionOfMostPartVariant2 < mediumRepetition) {
+                        firstPart.put(entry.getKey(), entry.getValue());
+                        codes.get(entry.getKey()).append("1");
+                        sumRepetitionOfMostPartVariant2 += entry.getValue();
+                    }else{
+                        secondPart.put(entry.getKey(), entry.getValue());
+                        codes.get(entry.getKey()).append("0");
+                    }
+            }
             defineCiphers(firstPart);
             defineCiphers(secondPart);
         }
