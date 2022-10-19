@@ -50,14 +50,13 @@ public class Compression<T extends Comparable<? super T>> {
             for (double value : map.values())
                 mediumProbability += (value / 2);
 
-            Iterator<Map.Entry<T, Double>> entryIterator = map.entrySet().iterator();
+            for (Map.Entry<T, Double> entry : map.entrySet())
+                if (sumProbabilityOfFirstPart < mediumProbability) {
+                    firstPart.put(entry.getKey(), entry.getValue());
+                    sumProbabilityOfFirstPart += entry.getValue();
+                } else
+                    secondPart.put(entry.getKey(), entry.getValue());
 
-            while (sumProbabilityOfFirstPart < mediumProbability) {
-                Map.Entry<T, Double> pair = entryIterator.next();
-                firstPart.put(pair.getKey(), pair.getValue());
-                sumProbabilityOfFirstPart += pair.getValue();
-            }
-            entryIterator.forEachRemaining((pair)->secondPart.put(pair.getKey(),pair.getValue()));
         }
 
     }
