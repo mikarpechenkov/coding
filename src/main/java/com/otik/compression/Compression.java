@@ -2,10 +2,7 @@ package com.otik.compression;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Compression<T extends Comparable<? super T>> {
@@ -25,7 +22,7 @@ public class Compression<T extends Comparable<? super T>> {
      Кроме того, к этой же мэпе будем обращаться и при дешифровке.
      На порядок элементов нам все равно, мы ее не сортируем.
      */
-    private TreeMap<T,StringBuilder> codes=new TreeMap<>();
+    private TreeMap<T, StringBuilder> codes = new TreeMap<>();
 
     public Compression(Map<T, Double> probability) {
         this.probability = probability;
@@ -42,15 +39,25 @@ public class Compression<T extends Comparable<? super T>> {
     }
 
     //Думаю лекче всего сделать рекурсией
-    private void defineCiphers(@NotNull Map<T,Double> map) {
-        Double sumProbabilityOfFirstPart = 0.0; //которая стоит справа, где 1
-        Double sumProbabilityOfSecondPart = 0.0;
-        Iterator<Map.Entry<T, Double>> firstIterator = map.entrySet().iterator();
-        Iterator<Map.Entry<T, Double>> secondIterator = map.entrySet().iterator();
-        if(map.size()!=1){
-            while (sumProbabilityOfFirstPart <= sumProbabilityOfSecondPart) {
+    //Не забыть убрать лишние скобки
+    private void defineCiphers(@NotNull Map<T, Double> map) {
+        if (map.size() != 1) {
+            Double sumProbabilityOfFirstPart = 0.0; //которая стоит справа, где 1
+            Double sumProbabilityOfSecondPart = 0.0;
+            Iterator<Map.Entry<T, Double>> firstIterator = map.entrySet().iterator();
 
+            while (sumProbabilityOfFirstPart <= sumProbabilityOfSecondPart) {
+                sumProbabilityOfSecondPart = 0.0;
+                sumProbabilityOfFirstPart += firstIterator.next().getValue();
+                Iterator<Map.Entry<T, Double>> secondIterator = firstIterator;
+                while (secondIterator.hasNext())
+                    sumProbabilityOfSecondPart += secondIterator.next().getValue();
             }
-        }
+
+            Map<T, Double> firstPart = new HashMap<>();
+            Map<T, Double> secondPart = new HashMap<>();
+            firstIterator.forEachRemaining(
+
+            );
     }
 }
