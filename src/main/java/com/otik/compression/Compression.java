@@ -26,6 +26,8 @@ public class Compression<T extends Comparable<? super T>> {
 
     public Compression(Map<T, Double> probability) {
         this.probability = probability;
+        codes.keySet().addAll(this.probability.keySet());
+        codes.values().forEach(v->v=new StringBuilder(""));
     }
 
     private void sortProbability() {
@@ -38,8 +40,7 @@ public class Compression<T extends Comparable<? super T>> {
                         LinkedHashMap::new));
     }
 
-    //Думаю лекче всего сделать рекурсией
-    //Не забыть убрать лишние скобки
+    //Осталось прописывать код перед рекурсивными вызовами
     private void defineCiphers(@NotNull Map<T, Double> map) {
         if (map.size() != 1) {
             double mediumProbability = 0.0;
@@ -53,10 +54,14 @@ public class Compression<T extends Comparable<? super T>> {
             for (Map.Entry<T, Double> entry : map.entrySet())
                 if (sumProbabilityOfFirstPart < mediumProbability) {
                     firstPart.put(entry.getKey(), entry.getValue());
+                    codes.get(entry.getKey()).append("1");
                     sumProbabilityOfFirstPart += entry.getValue();
-                } else
+                } else {
                     secondPart.put(entry.getKey(), entry.getValue());
-
+                    codes.get(entry.getKey()).append("0");
+                }
+            defineCiphers(firstPart);
+            defineCiphers(secondPart);
         }
 
     }
