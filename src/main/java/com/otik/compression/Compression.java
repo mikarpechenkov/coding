@@ -26,6 +26,7 @@ public class Compression<T extends Comparable<? super T>> {
 
     public Compression(Map<T, Double> probability) {
         this.probability = probability;
+        sortProbability();
         codes.keySet().addAll(this.probability.keySet());
         codes.values().forEach(v->v=new StringBuilder(""));
     }
