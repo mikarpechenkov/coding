@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Compression<T extends Comparable<? super T>> {
+public class Compressor<T extends Comparable<? super T>> {
     /*
     TreeMap нам не поможет. Оно по сути только для уменьшения времени работы с мэпами, в которых мы часто ищем.
     Также для в них есть методы, которые позволяют делить карты,
@@ -24,11 +24,15 @@ public class Compression<T extends Comparable<? super T>> {
      */
     private TreeMap<T, StringBuilder> codes = new TreeMap<>();
 
-    public Compression(Map<T, Double> probability) {
+    public Compressor(Map<T, Double> probability) {
         this.probability = probability;
+        this.probability.forEach((k, v) -> codes.put(k, new StringBuilder("")));
+    }
+
+    public TreeMap<T, StringBuilder> getCodes() {
         sortProbability();
-        codes.keySet().addAll(this.probability.keySet());
-        codes.values().forEach(v->v=new StringBuilder(""));
+        defineCiphers(probability);
+        return codes;
     }
 
     private void sortProbability() {
@@ -41,13 +45,13 @@ public class Compression<T extends Comparable<? super T>> {
                         LinkedHashMap::new));
     }
 
-    //Осталось прописывать код перед рекурсивными вызовами
+
     private void defineCiphers(@NotNull Map<T, Double> map) {
         if (map.size() != 1) {
             double mediumProbability = 0.0;
             double sumProbabilityOfFirstPart = 0.0; //которая стоит справа, где 1
-            Map<T, Double> firstPart = new HashMap<>();
-            Map<T, Double> secondPart = new HashMap<>();
+            Map<T, Double> firstPart = new LinkedHashMap<>();
+            Map<T, Double> secondPart = new LinkedHashMap<>();
 
             for (double value : map.values())
                 mediumProbability += (value / 2);
