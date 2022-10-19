@@ -42,22 +42,23 @@ public class Compression<T extends Comparable<? super T>> {
     //Не забыть убрать лишние скобки
     private void defineCiphers(@NotNull Map<T, Double> map) {
         if (map.size() != 1) {
-            Double sumProbabilityOfFirstPart = 0.0; //которая стоит справа, где 1
-            Double sumProbabilityOfSecondPart = 0.0;
-            Iterator<Map.Entry<T, Double>> firstIterator = map.entrySet().iterator();
-
-            while (sumProbabilityOfFirstPart <= sumProbabilityOfSecondPart) {
-                sumProbabilityOfSecondPart = 0.0;
-                sumProbabilityOfFirstPart += firstIterator.next().getValue();
-                Iterator<Map.Entry<T, Double>> secondIterator = firstIterator;
-                while (secondIterator.hasNext())
-                    sumProbabilityOfSecondPart += secondIterator.next().getValue();
-            }
-
+            double mediumProbability = 0.0;
+            double sumProbabilityOfFirstPart = 0.0; //которая стоит справа, где 1
             Map<T, Double> firstPart = new HashMap<>();
             Map<T, Double> secondPart = new HashMap<>();
-            firstIterator.forEachRemaining(
 
-            );
+            for (double value : map.values())
+                mediumProbability += (value / 2);
+
+            Iterator<Map.Entry<T, Double>> entryIterator = map.entrySet().iterator();
+
+            while (sumProbabilityOfFirstPart < mediumProbability) {
+                Map.Entry<T, Double> pair = entryIterator.next();
+                firstPart.put(pair.getKey(), pair.getValue());
+                sumProbabilityOfFirstPart += pair.getValue();
+            }
+            entryIterator.forEachRemaining((pair)->secondPart.put(pair.getKey(),pair.getValue()));
+        }
+
     }
 }
