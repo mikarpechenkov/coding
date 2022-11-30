@@ -15,16 +15,21 @@ public class ReaderFileByBytes {
         dataOfFile= new LinkedHashMap<>();
     }
 
+    public ReaderFileByBytes(File file) {
+        this.file = file;
+        dataOfFile= new LinkedHashMap<>();
+    }
+
     public void setFile(String file) {
         this.file = new File(file);
     }
 
-    public Map<Integer, Integer> getDataOfFile() {
-        if (dataOfFile != null) return dataOfFile;
-        else return null;
+    public Map<Integer, Integer> getDataOfFile() throws IOException {
+        readData();
+        return dataOfFile;
     }
 
-    public void readData() throws IOException {
+    private void readData() throws IOException {
         int tmp;
         FileInputStream inputStream = new FileInputStream(file);
         while ((tmp = inputStream.read()) != -1) {
